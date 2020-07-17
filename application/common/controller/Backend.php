@@ -35,8 +35,16 @@ class Backend extends Controller
     protected $noNeedRight = [];
 
 
-
+    /**
+     * Model对象
+     * @var null
+     */
     protected $model = null;
+
+    /**
+     * 验证器对象
+     * @var null
+     */
     protected $_validate = null;
     protected function initialize()
     {
