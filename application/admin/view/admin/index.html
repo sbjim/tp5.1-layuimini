@@ -1,0 +1,209 @@
+{extend name="base"}
+{block name="css"}
+
+{/block}
+
+
+{block name="content"}
+<div class="layuimini-container">
+    <div class="layuimini-main">
+
+        <fieldset class="table-search-fieldset">
+            <legend>搜索信息</legend>
+            <div style="margin: 10px 10px 10px 10px">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label">账号/名称</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="mobilePhoneNumber" autocomplete="off" placeholder="请输入搜索的内容" class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <button type="submit" class="layui-btn layui-btn-primary" lay-submit
+                                    lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 添加</button>
+                <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"> 删除</button>
+            </div>
+        </script>
+
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+
+        <script type="text/html" id="currentTableBar">
+            <a class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="edit">编辑</a>
+            <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</a>
+        </script>
+
+    </div>
+</div>
+{/block}
+
+{block name="js"}
+<script>
+    layui.use(['form', 'table'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table;
+
+        table.render({
+            elem: '#currentTableId',
+            url: '/admin/account/lists',
+            toolbar: '#toolbarDemo',
+            defaultToolbar: ['filter', 'exports', 'print', {
+                title: '提示',
+                layEvent: 'LAYTABLE_TIPS',
+                icon: 'layui-icon-tips'
+            }],
+            cols: [[
+                {type: "checkbox", width: 50},
+                {field: 'id', width: 80, title: 'ID', sort: true},
+                {field: 'mobilePhoneNumber', minWidth: 80, title: '账号'},
+                {field: 'password', minWidth: 80, title: '密码', sort: true},
+                {field: 'username', minWidth: 80, title: '用户名', sort: true},
+                {field: 'avatar', minWidth: 150, title: "头像",},
+                {field: 'uid_href', minWidth: 150, title: "链接",templet:function(d){
+                    return "<a href='"+d.uid_href+"' target='_blank'>掘金地址</a>"
+                    }},
+                {title: '操作', minWidth: 150, toolbar: '#currentTableBar', align: "center"}
+            ]],
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 15,
+            page: true,
+            skin: 'line'
+        });
+
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            var result = JSON.stringify(data.field);
+            //执行搜索重载
+            table.reload('currentTableId', {
+                page: {
+                    curr: 1
+                }
+                , where: {
+                    searchParams: result
+                }
+            }, 'data');
+
+            return false;
+        });
+
+        /**
+         * toolbar监听事件
+         */
+        table.on('toolbar(currentTableFilter)', function (obj) {
+            if (obj.event === 'add') {  // 监听添加操作
+                var index = layer.open({
+                    title: '添加用户',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: ['100%', '100%'],
+                    content: '{:url("add")}',
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+            } else if (obj.event === 'delete') {  // 监听删除操作
+
+                var checkStatus = table.checkStatus('currentTableId')
+                    , data = checkStatus.data;
+                let ids = [];
+                data.forEach(function (item,index) {
+                    ids.push(item.id)
+                });
+                if (ids.length <= 0) return;
+
+                ids = ids.join(',');
+                layer.confirm('亲，你真的忍心吗？', function (index) {
+                    axios.get('{:url("delete")}', {
+                        params: {
+                            ids: ids
+                        }
+                    })
+                    .then(function (response) {
+                        if (response.data.code == 1){
+                            layer.msg('删除成功', {icon: 6,time:1000},function (e) {
+                                parent.window.location.reload();
+                            });
+
+                        }else{
+                            layer.msg('删除失败', {icon: 5});
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                });
+
+            }
+        });
+
+        //监听表格复选框选择
+        table.on('checkbox(currentTableFilter)', function (obj) {
+            console.log(obj)
+        });
+
+        table.on('tool(currentTableFilter)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'edit') {
+
+
+                var index = layer.open({
+                    title: '编辑用户',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: ['100%', '100%'],
+                    content: "/admin/account/edit/id/"+data.id,
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+                return false;
+            } else if (obj.event === 'delete') {
+                layer.confirm('亲，你真的忍心吗？', function (index) {
+                    let ids = data.id;
+                    axios.get('{:url("delete")}', {
+                        params: {
+                            ids: ids
+                        }
+                    })
+                    .then(function (response) {
+                        if (response.data.code == 1){
+                            layer.msg('删除成功', {icon: 6,time:1000});
+                            obj.del();
+                            layer.close(index);
+                        }else{
+                            layer.msg('删除失败', {icon: 5});
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+
+
+                });
+            }
+        });
+
+    });
+</script>
+{/block}
+
+
+
+

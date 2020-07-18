@@ -1,0 +1,81 @@
+{extend name="base"}
+
+
+{block name="css"}{/block}
+
+
+{block name="content"}
+<div class="layuimini-container">
+    <div class="layuimini-main">
+
+
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+            <legend>添加账号</legend>
+        </fieldset>
+
+        <form class="layui-form" action="">
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">账号</label>
+                <div class="layui-input-block">
+                    <input type="text" name="phone" lay-verify="required" lay-reqtext="用户名是必填项，岂能为空？" placeholder="请输入账号" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">密码</label>
+                <div class="layui-input-block">
+                    <input type="text" name="password"  value="aa112233.." lay-verify="required" lay-reqtext="密码是必填项，岂能为空？" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit="" lay-filter="submit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+
+
+    </div>
+</div>
+{/block}
+
+
+
+{block name="js"}
+<script>
+    layui.use(['form', 'layedit', 'laydate'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , layedit = layui.layedit
+            , laydate = layui.laydate;
+
+        //监听提交
+        form.on('submit(submit)', function (data) {
+            let row = data.field;
+            axios.post('store', {
+                row
+            })
+            .then(function (response) {
+                if (response.data.code == 1){
+                    layer.msg(response.data.msg, {icon: 6,time:1500},function (e) {
+                        // parent.window.location.reload();
+                        // var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+                        // parent.layer.close(index);
+                    });
+                }else{
+                    layer.msg(response.data.msg, {icon: 5});
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+            return false;
+        });
+
+
+    });
+</script>
+{/block}
