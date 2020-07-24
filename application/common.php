@@ -50,6 +50,18 @@ function _lists($obj, $code = 0, $msg = '')
     echo json_encode($data);
 }
 
+/*
+ * 通用化API接口数据输出
+ * common libs 异常处理用到
+ */
+function show($status, $message, $data = [], $httpCode = 200){
+    $data = [
+        'status' => $status,
+        'message' => $message,
+        'data' => $data,
+    ];
+    return json($data, $httpCode);
+}
 
 
 
