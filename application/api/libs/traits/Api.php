@@ -49,10 +49,10 @@ trait Api
     public $_validate = false;
 
     /**
-     * 是否开启数据限制
+     * 数据获取最大的数量
      * 默认为禁用,若启用请务必保证表中存在admin_id字段
      */
-    public $dataLimit = false;
+    public $dataLimitCount = 100;
 
 
 

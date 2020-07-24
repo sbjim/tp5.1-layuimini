@@ -18,5 +18,6 @@ use think\Controller;
  */
 class Api extends Controller
 {
+    use \app\api\libs\traits\Api;
 
 }
