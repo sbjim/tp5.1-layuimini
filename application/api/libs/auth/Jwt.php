@@ -24,13 +24,25 @@ class Jwt extends Controller
      * jwt 加密密钥
      * @var string
      */
-     protected static $key = '';
+    protected static $key = '';
 
     /**
      * jwt 加密算法
      * @var string
      */
-     protected static $alg = '';
+    protected static $alg = '';
+
+
+    /**
+     * 在什么时候jwt开始生效  100（这里表示生成100秒后才生效）
+     * @var int
+     */
+    protected static $nbf = 0;
+    /**
+     * token 过期时间
+     * @var int
+     */
+    protected static $exp = 0;
 
     protected function initialize()
     {
@@ -45,22 +57,23 @@ class Jwt extends Controller
      * 生成授权码  加密
      * @param array $userInfo
      */
-    public  static function getToken(array $userInfo){
-        $datas= [
-            "iss"=>"",  //签发者 可以为空
-            "aud"=>"", //面象的用户，可以为空
+    public static function getToken(array $userInfo)
+    {
+        $datas = [
+            "iss" => "",  //签发者 可以为空
+            "aud" => "", //面象的用户，可以为空
             "iat" => time(), //签发时间
-            "nbf" => time()+100, //在什么时候jwt开始生效  （这里表示生成100秒后才生效）
-            "exp" => time()+7200, //token 过期时间
-            "uid" => 123 //记录的userid的信息，这里是自已添加上去的，如果有其它信息，可以再添加数组的键值对
+            "nbf" => time() + self::$nbf, //在什么时候jwt开始生效  （这里表示生成100秒后才生效）
+            "exp" => time() + self::$exp, //token 过期时间
+            "userInfo" => $userInfo //记录的userid的信息，这里是自已添加上去的，如果有其它信息，可以再添加数组的键值对
         ];
 
-        $jwt = \Firebase\JWT\JWT::encode($datas,self::$key,self::$alg); //根据参数生成了 token
+        $jwt = \Firebase\JWT\JWT::encode($datas, self::$key, self::$alg); //根据参数生成了 token
 
         $result = [
-            'code'=>1,
-            'msg'=>'ok',
-            'token'=>$jwt,
+            'code' => 1,
+            'msg' => 'ok',
+            'token' => $jwt,
         ];
         return json($result);
     }
@@ -69,11 +82,12 @@ class Jwt extends Controller
     /**
      * 解密授权码
      */
-    public static function checkToken($authorization){
-        $datas = \Firebase\JWT\JWT::decode($authorization,self::$key,[self::$alg]);
+    public static function checkToken($authorization)
+    {
+        $datas = \Firebase\JWT\JWT::decode($authorization, self::$key, [self::$alg]);
 
         // 检测授权码
-        if ($datas == false){
+        if ($datas == false) {
             throw new ApiException('非法授权码');
         }
 
