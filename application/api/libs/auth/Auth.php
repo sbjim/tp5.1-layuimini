@@ -9,7 +9,8 @@
 namespace app\api\libs\auth;
 
 
-use app\api\libs\traits\Api;
+use app\common\controller\Api;
+use app\common\libs\exception\ApiException;
 use think\Controller;
 
 /**
@@ -17,8 +18,37 @@ use think\Controller;
  * Class Auth
  * @package app\api\libs\auth
  */
-class Auth extends \app\common\controller\Api
+class Auth extends Controller
 {
+    /**
+     * 无需登录的方法,同时也就不需要鉴权了
+     * @var array
+     */
+    public $noNeedLogin = [];
+
+
+    /**
+     * 权限控制类
+     * @var Auth
+     */
+    public $auth = null;
+
+    /**
+     * 模型对象
+     * @var \think\Model
+     */
+    public $model = null;
+
+    /**
+     * Validate验证
+     */
+    public $_validate = false;
+
+    /**
+     * 数据获取最大的数量
+     */
+    public $dataLimitCount = 100;
+
 
 
     protected function initialize()
@@ -39,13 +69,19 @@ class Auth extends \app\common\controller\Api
             return true;
         }
 
+        if (!isset($headers['authorization']) || $headers['authorization'] == ''){
+            throw new ApiException('授权码不正确');
+        }
+
         /**
          * 检测授权码是否通过
+         * coding....
          */
+        $userInfo = Jwt::checkToken($headers['authorization']);
 
-        // coding....
-        return true;
+        return $userInfo;
 
     }
+
 
 }

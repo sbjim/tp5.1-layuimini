@@ -9,9 +9,12 @@
 namespace app\api\controller\v1;
 
 
-use app\api\controller\Base;
+use app\common\controller\Api;
 
-class Index extends Base
+class Index extends Api
 {
+    public function index(){
+
+    }
 
 }

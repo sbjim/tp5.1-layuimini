@@ -9,15 +9,15 @@
 namespace app\common\controller;
 
 
-use think\Controller;
+use app\api\libs\auth\Auth;
 
 /**
  * API 基础类
  * Class Api
  * @package app\common\controller
  */
-class Api extends Controller
+class Api extends Auth
 {
-    use \app\api\libs\traits\Api;
+
 
 }

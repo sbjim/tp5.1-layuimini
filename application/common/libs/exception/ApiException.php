@@ -14,6 +14,12 @@ use think\Exception;
 class ApiException extends Exception
 {
 
+    /**
+     * 可以定义一下错误信息 以及 错误code
+     * @var string
+     */
+
+
     public $message = '';
     public $httpCode = 500;
     public $code = 0;

@@ -9,6 +9,14 @@
 namespace app\admin\libs\traits;
 
 
+use think\Exception;
+use think\exception\PDOException;
+
+/**
+ * 后台基础方法
+ * Trait Backend
+ * @package app\admin\libs\traits
+ */
 trait Backend
 {
     public function index()
